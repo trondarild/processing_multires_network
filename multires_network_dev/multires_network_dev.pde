@@ -1,13 +1,13 @@
-//
+// Dev sketch of multires network
 //
 
-void setup(){
-  size(400, 400);
-  frameRate(10);
+PImage img;
+
+void setup() {
+  size(400,400);
+  img = loadImage("testimg.png");
 }
 
-void draw(){
-  background(51);
-  fill(200);
-  circle(width/2, height/2, 100);
+void draw() {
+  image(img, 0, 0);
 }
