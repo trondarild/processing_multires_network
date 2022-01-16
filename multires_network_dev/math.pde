@@ -46,7 +46,7 @@ float[][] randomMatrix(int r, int c, float max){
 }
 
 float[][][][] randomMatrix4(int rr, int cc, int r, int c, float max){
-  float[][][][] retval = new float[rr][cc][r]][c];
+  float[][][][] retval = new float[rr][cc][r][c];
   for (int j = 0; j < rr; ++j) {
     for (int i = 0; i < cc; ++i) {
       retval [j][i] = randomMatrix(r, c, max);
