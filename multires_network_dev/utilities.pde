@@ -908,12 +908,10 @@ float[][][][] mapTo4d(float[][] source,
 float[][] spanned_im2row(
         
         float[][] in, 
-        int out_r, int out_c,
+        // int out_r, int out_c,
         int map_size_x, 
         int map_size_y, 
-        int source_size_x, 
-        int source_size_y, 
-        int kernel_size_x, 
+        int kernel_size_x,
         int kernel_size_y, 
         int stride_x, 
         int stride_y,
@@ -922,7 +920,10 @@ float[][] spanned_im2row(
         int span_x,
         int span_y)  // mode = 'sliding'
     {
-        
+        int out_c = kernel_size_x*kernel_size_y;
+        int out_r = map_size_x*map_size_y;
+        int source_size_y = in.length; 
+        int source_size_x = in[0].length;
         float[] r = zeros(out_c*out_r);
         
         float[] source = ravel(in);
@@ -948,7 +949,7 @@ float[][] spanned_im2row(
         return arrayToMatrix(r, out_r, out_c);
     }
 
-    float [][] spanned_row2im( 
+float [][] spanned_row2im( 
         float[][] ain, 
         int out_x, int out_y,
         int map_x, int map_y,
