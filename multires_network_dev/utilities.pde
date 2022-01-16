@@ -957,35 +957,50 @@ float [][] spanned_row2im(
         int inc_x, int inc_y,
         int blk_x, int blk_y,
         int spn_x, int spn_y)
-    {
-        int []s = new int[rf_y];
-        float[] in = ravel(ain);
-        float[] o = zeros(out_y*out_x);
+{
+    int []s = new int[rf_y];
+    float[] in = ravel(ain);
+    float[] o = zeros(out_y*out_x);
 
-        int r_ix = 0;
-        for (int j = 0; j < map_y; ++j)
-            for (int i = 0; i < map_x; ++i)
+    int r_ix = 0;
+    for (int j = 0; j < map_y; ++j)
+        for (int i = 0; i < map_x; ++i)
+        {
+            //resetArray(s);
+            Arrays.fill(s, 0);
+            for (int k = 0; k < rf_y; ++k)
             {
-                //resetArray(s);
-                Arrays.fill(s, 0);
-                for (int k = 0; k < rf_y; ++k)
-                {
-                    int dv = k / blk_y;
-                    int offset = dv * spn_y;
-                    s[k] = (j*inc_y + k + offset) * out_x + 
-                        i * inc_x;
-                }
-                for (int k = 0; k < rf_y; ++k)
-                    for (int v = 0; v < rf_x; ++v)
-                    {
-                        int dv = v / blk_x;
-                        int offset = dv * spn_x;
-                        int s_ix = offset + s[k];
-                        o[s_ix] += in[r_ix];
-                        r_ix += 1;
-                        s[k] += 1;
-                    }
+                int dv = k / blk_y;
+                int offset = dv * spn_y;
+                s[k] = (j*inc_y + k + offset) * out_x + 
+                    i * inc_x;
             }
-        // free (s);
-        return arrayToMatrix(o, out_y, out_x);
+            for (int k = 0; k < rf_y; ++k)
+                for (int v = 0; v < rf_x; ++v)
+                {
+                    int dv = v / blk_x;
+                    int offset = dv * spn_x;
+                    int s_ix = offset + s[k];
+                    o[s_ix] += in[r_ix];
+                    r_ix += 1;
+                    s[k] += 1;
+                }
+        }
+    // free (s);
+    return arrayToMatrix(o, out_y, out_x);
+}
+
+void drawMatrix4(float my, float mx, float[][][][] m){
+  pushMatrix();
+    for(int r = 0; r < 3; r++){
+      
+      translate(my, 0);
+      pushMatrix();
+      for(int c = 0; c < 3; c++){
+        translate(0, mx);
+        drawColGrid(0,0, 5, m[r][c]);
+      }
+      popMatrix();
     }
+  popMatrix();
+}
