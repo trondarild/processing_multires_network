@@ -35,6 +35,26 @@ float[][] ones(int rows, int cols, float val){
   return ret;  
 }
 
+float[][] randomMatrix(int r, int c, float max){
+  float[][] retval = zeros(r, c);
+  for (int j = 0; j < r; ++j) {
+    for (int i = 0; i < c; ++i) {
+      retval [j][i] = random(0, max);
+    }
+  }
+  return retval;
+}
+
+float[][][][] randomMatrix4(int rr, int cc, int r, int c, float max){
+  float[][][][] retval = new float[rr][cc][r]][c];
+  for (int j = 0; j < rr; ++j) {
+    for (int i = 0; i < cc; ++i) {
+      retval [j][i] = randomMatrix(r, c, max);
+    }
+  }
+  return retval;
+}
+
 float[][] reset(float[][] a){
   for (int j=0; j<a.length; j++)
     for (int i=0; i<a[0].length; i++)
@@ -69,6 +89,33 @@ float[][] mult_per_elm(float[][] a, float[][] b){
   float[][] retval = zeros(a.length, a[0].length);
   for (int j = 0; j < a.length; ++j) {
     retval[j] = mult_per_elm(a[j], b[j]);
+  }
+  return retval;
+}
+
+float dotProd(float[] a, float[] b){
+  return sumArray(mult_per_elm(a, b));
+}
+
+float[][] dotProd(float[][] a, float[][] b){
+  // TODO assert sizes; assumes ab' is given
+  float[][] retval = zeros(a.length, b.length);
+  for (int j = 0; j < a.length; ++j) {
+    for (int i = 0; i < b.length; ++i) {
+      retval[j][i] = dotProd(a[j], b[i]);
+    }
+  }
+  return retval;
+}
+
+float[][] dotProdT(float[][] a, float[][] b){
+  // TODO assert sizes; assumes ab' is given
+  float[][] bt = transpose(b);
+  float[][] retval = zeros(a.length, bt.length);
+  for (int j = 0; j < a.length; ++j) {
+    for (int i = 0; i < bt.length; ++i) {
+      retval[j][i] = dotProd(a[j], bt[i]);
+    }
   }
   return retval;
 }
