@@ -857,3 +857,134 @@ float[] getSubArray(float[] source, int start, int length){
   System.arraycopy(source, start, retval, 0, length);
   return retval;
 }
+
+float[][] mapFrom4d(float [][][][] source, 
+      int sx, int sy, int kx, int ky) {
+  float[][] retval = zeros(sx*sy, kx*ky);
+  int k=0;
+  for (int ssy = 0; ssy < sy; ++ssy)
+  {
+      for (int ssx = 0; ssx < sx; ++ssx)
+      {
+          int k_ix=0;
+          for (int kky = 0; kky < ky; ++kky)
+          {
+              for (int kkx = 0; kkx < kx; ++kkx)
+              {
+                  retval[k][k_ix] = source[ssy][ssx][kky][kkx];
+                  k_ix++;
+              }
+          }
+          k++;
+      }
+  }
+  return retval;
+}
+
+float[][][][] mapTo4d(float[][] source,
+        int sx, int sy, int kx, int ky) {
+  float[][][][] retval = new float[sy][sx][ky][kx];
+  int k=0;
+  for (int ssy = 0; ssy < sy; ++ssy)
+  {
+      for (int ssx = 0; ssx < sx; ++ssx)
+      {
+          int k_ix=0;
+          for (int kky = 0; kky < ky; ++kky)
+          {
+              for (int kkx = 0; kkx < kx; ++kkx)
+              {
+                  retval[ssy][ssx][kky][kkx] = source [k][k_ix];
+                  k_ix++;
+              }
+          }
+          k++;
+      }
+  }
+  return retval;    
+}
+
+// create 
+float[][] spanned_im2row(
+        
+        float[][] in, 
+        int out_r, int out_c,
+        int map_size_x, 
+        int map_size_y, 
+        int source_size_x, 
+        int source_size_y, 
+        int kernel_size_x, 
+        int kernel_size_y, 
+        int stride_x, 
+        int stride_y,
+        int block_x,
+        int block_y,
+        int span_x,
+        int span_y)  // mode = 'sliding'
+    {
+        
+        float[] r = zeros(out_c*out_r);
+        
+        float[] source = ravel(in);
+        int r_ix = 0;
+        for(int j=0; j<map_size_y; j++)
+            for(int i=0; i<map_size_x; i++)
+            {
+                int[] s = new int[kernel_size_y];
+                // for rows
+                for(int k=0; k<kernel_size_y; k++){
+                    int dv = k/block_y;
+                    int offset = dv*span_y;
+                    s[k] = (j*stride_y+k+offset)*source_size_x + i*stride_x;
+                }
+                for(int k=0; k<kernel_size_y; k++)
+                    for(int v=0; v<kernel_size_x; v++){
+                        int dv = v/block_x;
+                        int offset = dv*span_x;
+                        int s_ix = offset + s[k]++;
+                        r[r_ix++] = source[s_ix];
+                    }
+            }
+        return arrayToMatrix(r, out_r, out_c);
+    }
+
+    float [][] spanned_row2im( 
+        float[][] ain, 
+        int out_x, int out_y,
+        int map_x, int map_y,
+        int rf_x, int rf_y,
+        int inc_x, int inc_y,
+        int blk_x, int blk_y,
+        int spn_x, int spn_y)
+    {
+        int []s = new int[rf_y];
+        float[] in = ravel(ain);
+        float[] o = zeros(out_y*out_x);
+
+        int r_ix = 0;
+        for (int j = 0; j < map_y; ++j)
+            for (int i = 0; i < map_x; ++i)
+            {
+                //resetArray(s);
+                Arrays.fill(s, 0);
+                for (int k = 0; k < rf_y; ++k)
+                {
+                    int dv = k / blk_y;
+                    int offset = dv * spn_y;
+                    s[k] = (j*inc_y + k + offset) * out_x + 
+                        i * inc_x;
+                }
+                for (int k = 0; k < rf_y; ++k)
+                    for (int v = 0; v < rf_x; ++v)
+                    {
+                        int dv = v / blk_x;
+                        int offset = dv * spn_x;
+                        int s_ix = offset + s[k];
+                        o[s_ix] += in[r_ix];
+                        r_ix += 1;
+                        s[k] += 1;
+                    }
+            }
+        // free (s);
+        return arrayToMatrix(o, out_y, out_x);
+    }
