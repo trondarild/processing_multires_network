@@ -916,6 +916,14 @@ float[][] repeatCols(int cols, float[][] a){
   return retval;  
 }
 
+float[][] tileRows(int times, float[] a){
+  float[][] retval = zeros(times, a.length);
+  for (int j = 0; j < times; ++j) {
+      System.arraycopy(a, 0, retval[j], 0, a.length);
+  }
+  return retval;
+}
+
 float[][] tileRows(int times, float[][] a){
   float[][] retval = zeros(a.length*times, a[0].length);
   for (int j = 0; j < times; ++j) {
@@ -925,6 +933,17 @@ float[][] tileRows(int times, float[][] a){
   }
   return retval;
 }
+
+float[] tileCols(int times, float[] a) {
+  float[] retval = zeros(a.length * times);
+  for (int j = 0; j < a.length; ++j) {
+    for (int i = 0; i < times; ++i) {
+      System.arraycopy(a, 0, retval, i*a.length, a.length);
+    }
+  }
+  return retval;
+}
+
 
 float[][] tileCols(int times, float[][] a) {
   float[][] retval = zeros(a.length, a[0].length * times);
@@ -1122,4 +1141,12 @@ float hammingDistanceZero(float[] a, float[] b) {
 float[] set_one(float[] a, int ix) {
   a[ix] = 1.0;
   return a;
+}
+
+void printStrMat(String[][] a) {
+  for (int j = 0; j < a.length; j++){
+    for (int i = 0; i < a[0].length; i++)
+      print(a[j][i] + "; ");
+    println();
+  }
 }

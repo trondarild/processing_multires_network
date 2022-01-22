@@ -12,7 +12,8 @@ int midiDevice  = 0;
 
 
 
-TestIm2Row test = new TestIm2Row(); 
+//TestIm2Row test = new TestIm2Row(); 
+TestMatrixOps tst = new TestMatrixOps();
 
 void setup(){
 	size(500, 500);
