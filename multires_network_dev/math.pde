@@ -93,6 +93,14 @@ float[][] mult_per_elm(float[][] a, float[][] b){
   return retval;
 }
 
+float[] addArray(float[] a, float[] b ) {
+  assert(a.length == b.length);
+  float[] retval = zeros(a.length);
+  for (int i = 0; i < a.length; ++i) {
+    retval[i] = a[i]+b[i];
+      }
+  return retval;
+}
 float dotProd(float[] a, float[] b){
   return sumArray(mult_per_elm(a, b));
 }
@@ -206,6 +214,20 @@ int argmax(float[] a, int start, int stop){
 
 float limitval(float lower, float upper, float a){
   float ret = 0;
+  
+    if(a < lower) 
+      ret = lower;
+    else if(a > upper) 
+      ret = upper;
+    else 
+      ret = a;
+  
+  return ret;
+  
+}
+
+int limitval(int lower, int upper, int a){
+  int ret = 0;
   
     if(a < lower) 
       ret = lower;
