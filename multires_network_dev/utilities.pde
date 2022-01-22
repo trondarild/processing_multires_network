@@ -522,6 +522,18 @@ float[] getCol(float[][] a, int col){
   return retval;
 }
 
+float[] copyArray(float[] a){
+  float[] retval = zeros(a.length);
+  System.arraycopy(a, 0, retval, 0, a.length);
+  return retval;
+}
+
+int[] copyArray(int[] a){
+  int[] retval = new int[a.length];
+  System.arraycopy(a, 0, retval, 0, a.length);
+  return retval;
+}
+
 float[][] copyMatrix(float[][] dest, float[][] m){
     float[][] retval = dest;
     for (int j = 0; j < m.length; j++) {
@@ -627,6 +639,23 @@ float[] mask_array(float[] a, int[] keep){
   float[] retval = zeros(a.length);
   for(int i : keep){
     retval[i] = a[i];
+  }
+  return retval;
+}
+
+float[] genMask(int size, int[] ixes){
+  float[] retval = zeros(size);
+  for (int i : ixes){
+    retval[i] = 1.0;
+  }
+  return retval;
+}
+
+int[] genIndeces(int from, int to) {
+  int length = to-from+1;
+  int[] retval = new int[length];
+  for (int i = 0; i < length; ++i) {
+    retval[i] = from + i;
   }
   return retval;
 }
@@ -830,6 +859,16 @@ float[][] repeatCols(int cols, float[][] a){
     }
   }
   return retval;  
+}
+
+float[][] tileRows(int times, float[][] a){
+  float[][] retval = zeros(a.length*times, a[0].length);
+  for (int j = 0; j < times; ++j) {
+    for (int i = 0; i < a.length; ++i) {
+      System.arraycopy(a[i], 0, retval[j*a.length + i], 0, a[0].length);
+    }
+  }
+  return retval;
 }
 
 float[] populationEncode(float val, int size, float min, float max, float sigma) {
