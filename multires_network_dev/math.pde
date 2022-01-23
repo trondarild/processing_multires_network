@@ -55,6 +55,12 @@ float[][][][] randomMatrix4(int rr, int cc, int r, int c, float max){
   return retval;
 }
 
+float[] reset(float[] a) {
+  for (int i=0; i<a.length; i++)
+      a[i] = 0;
+  return a;
+}
+
 float[][] reset(float[][] a){
   for (int j=0; j<a.length; j++)
     for (int i=0; i<a[0].length; i++)
@@ -98,7 +104,7 @@ float[] addArray(float[] a, float[] b ) {
   float[] retval = zeros(a.length);
   for (int i = 0; i < a.length; ++i) {
     retval[i] = a[i]+b[i];
-      }
+  }
   return retval;
 }
 float dotProd(float[] a, float[] b){
@@ -674,4 +680,20 @@ float norm1(float[] a) {
   for (int i=0; i < a.length; i++)
     r += abs(a[i]);
   return r;
+}
+
+float norm1(float[][] a) {
+  float r = 0;
+  for (int j = 0; j < a.length; ++j) {
+    for (int i=0; i < a[0].length; i++)
+      r += abs(a[j][i]);
+  return r;
+}
+
+float[] normalize(float[] a) {
+  return multiply(1.0/norm1(a), a);
+}
+
+float[][] normalize(float[][] a) {
+  return multiply(1.0/norm1(a), a);
 }

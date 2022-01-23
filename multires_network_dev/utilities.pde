@@ -356,6 +356,61 @@ void drawTimeSeries(float[] series, float maxy, float x_margin, float thresh){
  popStyle();
 }
 
+void drawTimeSeries(float[][] series, float miny, float maxy, float x_margin, float thresh, color[] palette){
+ /**
+   series: matrix of time series, cols are y values, 
+   miny: min value on y axis, 
+   maxy: max value on y axis
+   x_margin: distance between points 
+   thresh: y pos of a threshold line 
+   palette: list of color values to use for each time series
+   
+   Example:
+   drawTimeSeries(series, 0, 1, 0.1, 0.5, null) // use default colors
+ */
+ float y_length=100;
+ float x_length=100;
+ color[] default_cols = {#e76f51, #2a9d8f, #e9c46a, #f4a261, #2676a3};
+ color[] colors = null;
+ if(palette == null || palette.length == 0){
+   colors = new color[series.length];
+   for(int i = 0; i < colors.length; i++) colors[i] = default_cols[i%(default_cols.length)]; // change
+ }
+ else colors = palette;
+ // float x_margin = 20;
+ //float ptsz = 10;
+ pushStyle();
+ stroke(200);
+ strokeWeight(2);
+ //draw y
+ line(0,0,0,(maxy-miny)*y_length);
+ line(0,y_length, x_length, y_length);
+ pushStyle();
+ stroke(200, 100, 0);
+ float y_thr = y_length*(1 - thresh/maxy);
+ line(0,  y_thr, x_length, y_thr); 
+ popStyle();
+ // draw data
+ 
+ for (int j = 0; j < series.length; ++j) {
+    float x = x_margin;
+    pushStyle();
+    stroke(colors[j]);
+    //fill(150);
+    noFill();
+    strokeWeight(1.5);
+    beginShape();
+    for(int i=0; i<series[j].length; i++){
+      float y = y_length*(1 - series[j][i]/maxy);
+      //circle(x, y,  ptsz);
+      vertex(x, y);
+      x+=x_margin;
+    }
+    endShape();
+    popStyle();
+  }
+ popStyle();
+}
 
 
 class Buffer{
@@ -830,7 +885,7 @@ float[][] generateUniquePatterns(int rows, int cols, int hots){
 boolean isInMatrix(float[] vec, float[][] matrix){
   if(vec.length != matrix[0].length) return false;
   
-  for(int i=0; i<matrix[0].length; i++)
+  for(int i=0; i<matrix.length; i++)
     if(equal(vec, matrix[i])) return true;
   return false;
 }
@@ -861,11 +916,40 @@ float[][] repeatCols(int cols, float[][] a){
   return retval;  
 }
 
+float[][] tileRows(int times, float[] a){
+  float[][] retval = zeros(times, a.length);
+  for (int j = 0; j < times; ++j) {
+      System.arraycopy(a, 0, retval[j], 0, a.length);
+  }
+  return retval;
+}
+
 float[][] tileRows(int times, float[][] a){
   float[][] retval = zeros(a.length*times, a[0].length);
   for (int j = 0; j < times; ++j) {
     for (int i = 0; i < a.length; ++i) {
       System.arraycopy(a[i], 0, retval[j*a.length + i], 0, a[0].length);
+    }
+  }
+  return retval;
+}
+
+float[] tileCols(int times, float[] a) {
+  float[] retval = zeros(a.length * times);
+  for (int j = 0; j < a.length; ++j) {
+    for (int i = 0; i < times; ++i) {
+      System.arraycopy(a, 0, retval, i*a.length, a.length);
+    }
+  }
+  return retval;
+}
+
+
+float[][] tileCols(int times, float[][] a) {
+  float[][] retval = zeros(a.length, a[0].length * times);
+  for (int j = 0; j < a.length; ++j) {
+    for (int i = 0; i < times; ++i) {
+      System.arraycopy(a[j], 0, retval[j], i*a[0].length, a[0].length);
     }
   }
   return retval;
@@ -1042,4 +1126,27 @@ void drawMatrix4(float my, float mx, float[][][][] m){
       popMatrix();
     }
   popMatrix();
+}
+
+float hammingDistanceZero(float[] a, float[] b) {
+  // counts the number of ixes that are unequal in being zero
+  float retval = 0;
+  assert(a.length == b.length) : a.length + " := " + b.length;
+  for (int i = 0; i < a.length; ++i) {
+    if(a[i] == 0. && b[i] != 0 || a[i] > 0 && b[i]==0) retval += 1.0;
+  }
+  return retval;
+}
+
+float[] set_one(float[] a, int ix) {
+  a[ix] = 1.0;
+  return a;
+}
+
+void printStrMat(String[][] a) {
+  for (int j = 0; j < a.length; j++){
+    for (int i = 0; i < a[0].length; i++)
+      print(a[j][i] + "; ");
+    println();
+  }
 }
