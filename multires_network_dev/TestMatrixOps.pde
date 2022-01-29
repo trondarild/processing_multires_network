@@ -10,7 +10,7 @@ class TestMatrixOps {
         float[] tst_rav = ravel(tst);
         printArray("tst_rav", tst_rav);
 
-        float[][] tst_row_tile = tileRow(tilings, tst)
+        float[][] tst_row_tile = tileRows(tilings, tst);
         printMatrix("tst_row_tile", tst_row_tile);
 
         float[] tst_row_tile_rav = ravel(tst_row_tile);
