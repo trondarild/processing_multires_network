@@ -16,6 +16,7 @@ class MultiResLayer {
     float[][][][] w; // weights
     float[][][][] dw; // weights
     float[][] weights_viz;
+    float[][] corr_filter;
 
 
     
@@ -106,6 +107,7 @@ class MultiResLayerSpec {
     int         output_type;       // 0 = combined, 1 = separate 
     
     float		alpha = 0.05;              // RF learning constant
+    float       alpha_eff = alpha;
     float		alpha_min = 0.01;
     float		alpha_max = 0.1;
     float		alpha_decay = 0.001;
@@ -117,6 +119,7 @@ class MultiResLayerSpec {
     boolean     use_top_down = true;
 
     float       act_gain = 1.0;
+    
 
 
     MultiResLayerSpec() {
@@ -147,6 +150,8 @@ class MultiResLayerSpec {
         unit.w = randomMatrix4(som_size_x, som_size_y, rf_size_x, rf_size_y, rnd_mean + rnd_var); // weights
         unit.dw = zeros(som_size_x, som_size_y, rf_size_x, rf_size_y); // weights
         unit.weights_viz = zeros(rf_size_y*som_size_y, rf_size_x*som_size_x); // weight visualiz
+        alpha_eff = alpha / map_size_x * map_size_y;
+        unit.corr_filter = generateCorrectionFilter(map_size_x*map_size_y, rf_size_x*rf_size_y); // TODO only once
     }
 
     void cycle(MultiResLayer unit) {
@@ -158,12 +163,7 @@ class MultiResLayerSpec {
     }
 
     void calcFwdActivation(MultiResLayer unit){
-        // int input_size_x = unit.input_up[0].length;
-        // int input_size_y = unit.input_up.length;
-        // int inp_scr_x = input_size_x + 2*border_mult * span_size_x;
-        // int inp_scr_y = input_size_y + 2*border_mult * span_size_y;
-        // int offset_x = (map_size_x_scr - map_size_x) / 2;
-        // int offset_y = (map_size_y_scr - map_size_y) / 2;
+
         float[][] input = unit.input_up;
 
         float[][] buffer = spanned_im2row(input, map_size_x, map_size_y, 
@@ -176,8 +176,6 @@ class MultiResLayerSpec {
         for (int sj = 0; sj < som_size_y; sj++) 
             for (int si = 0; si < som_size_x; si++)
             {
-                // im2row(buffer, input, map_size_x, map_size_y, input_size_x, input_size_y, rf_size_x, rf_size_y, rf_inc_x, rf_inc_y);
-                //reset_matrix(activity_scratch, map_size_x_scr, map_size_y_scr);
                 float[][] tmp = {ravel(unit.w[sj][si])};
                 //unit.activity[sj][si] = arrayToMatrix(xx1(ravel(dotProd(buffer, tmp))), map_size_y, map_size_x);
                 unit.activity[sj][si] = arrayToMatrix(ravel(dotProd(buffer, tmp)), map_size_y, map_size_x);
@@ -192,40 +190,30 @@ class MultiResLayerSpec {
         unit.output_down = regenerate(
             unit.input_down,
             unit.w,
-            map_size_x, map_size_y);
+            map_size_x, map_size_y,
+            unit.corr_filter);
         
     }
 
-    float[][] regenerate(float[][] in, float[][][][] w, int map_x, int map_y) {
+    float[][] regenerate(float[][] in, float[][][][] w, int map_x, int map_y, float[][] corr_filter) {
         float[][] topdown_buffer = spanned_im2row(in,
             map_x, map_y,
             this.som_size_x, this.som_size_y,
             this.som_size_x, this.som_size_y,
             this.som_size_x, this.som_size_y,
             0,0);
-        println("topdownbuf: " + topdown_buffer.length + ", " + topdown_buffer[0].length);
-        //float[][] tmp = zeros(buffer_size_x, buffer_size_y);
-        // float[][] ww = arrayToMatrix(ravel(w), topdown_buffer.length, topdown_buffer[0].length);
-        float[] ww = ravel(w);
-        println("ww: " + ww.length);
-        float[][] tmp = mult_per_elm(repeatCols(ww.length, topdown_buffer), tileRows(topdown_buffer.length, tileCols(topdown_buffer[0].length, ww))); //, buffer_size_x, buffer_size_y, 
-        println("tmp: " + tmp.length + ", " + tmp[0].length);
-        tmp = arrayToMatrix(ravel(tmp), tmp.length/rf_size_x*rf_size_y, rf_size_x*rf_size_y);
-        //som_size_x*som_size_y);
-        //printf("mult done\n" );
-        // cumulative_take(out_reconstruction, tmp, indeces, ..) // spanned_row2im
-        //reset_matrix(out_reconstruction, size_x, size_y);
+        float[][] ww = arrayToMatrix(ravel(w), som_size_x*som_size_y, rf_size_x*rf_size_y);
+        float[][] tmp = dotProdT(topdown_buffer, ww);
+        
         float[][] out_reconstruction = spanned_row2im(tmp, 
-            in[0].length, in.length,
+            input_size_x, input_size_y,
             map_x, map_y,
             rf_size_x, rf_size_y,
             rf_inc_x, rf_inc_y,
             block_size_x, block_size_y,
             span_size_x, span_size_y);
-
-        //retval = normalize_max(retval);
-        //printMatrix("topdown", out_reconstruction);
-        //return normalize(topdown_buffer);
+        
+        out_reconstruction = mult_per_elm(corr_filter, out_reconstruction);
         return out_reconstruction;
     }
 
@@ -456,7 +444,7 @@ class MultiResLayerSpec {
                         // input buffer to get change in weights
                         delta_buffer = subtract(input_buffer, inhibition_buffer); // 16%
                         // calculate weight change: delta* (alpha*activity)
-                        unit.dw[sj][si] = multiply(alpha * unit.activity[sj][si][mj][mi], delta_buffer); // 6%               
+                        unit.dw[sj][si] = multiply(alpha_eff * unit.activity[sj][si][mj][mi], delta_buffer); // 6%               
                         // TAT 2015-11-08: moved from outside loop - 
                         // looks like it works, but may give diff results
                         // is now cumulated for each pixel instead of just last
@@ -531,5 +519,22 @@ class MultiResLayerSpec {
     }
 
     float[] reset_array(float[] a) {Arrays.fill(a, 0); return a;}
+
+    float[][] generateCorrectionFilter(int r, int c) {
+        float[][] tmp = ones(r, c);
+        float[][] filter = spanned_row2im(tmp, 
+            input_size_x, input_size_y,
+            map_size_x, map_size_y,
+            rf_size_x, rf_size_y,
+            rf_inc_x, rf_inc_y,
+            block_size_x, block_size_y,
+            span_size_x, span_size_y);
+        for (int j = 0; j < filter.length; ++j) {
+            for (int i = 0; i < filter[0].length; ++i) {
+                filter[j][i] = 1.0/filter[j][i];
+            }
+        }
+        return filter;
+    }
     
 }
