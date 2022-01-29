@@ -1,8 +1,23 @@
 class TestMatrixOps {
-    String name = "Test template";
+    String name = "Test matrix ops";
     int inputvecsize = 3;
     float[] inputval = zeros(inputvecsize);
     TestMatrixOps() {
+
+        int tilings = 2;
+        float[][] tst = {{1,2,4}, {4,5,6}, {7,8,9}};
+
+        float[] tst_rav = ravel(tst);
+        printArray("tst_rav", tst_rav);
+
+        float[][] tst_row_tile = tileRow(tilings, tst)
+        printMatrix("tst_row_tile", tst_row_tile);
+
+        float[] tst_row_tile_rav = ravel(tst_row_tile);
+        printArray("tst_row_tile_rav", tst_row_tile_rav);
+
+
+
 
     }
 
