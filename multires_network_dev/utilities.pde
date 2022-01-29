@@ -1151,3 +1151,29 @@ void printStrMat(String[][] a) {
     println();
   }
 }
+
+PImage matrixToImage(float[][] data) {
+  PImage img = createImage(data.length, data[0].length, ALPHA);
+  img.loadPixels();
+  int px = 0;
+  for (int j = 0; j < data.length; ++j) {
+    for (int i = 0; i < data[0].length; i++) {
+      img.pixels[px++] = color(250 * data[j][i]); 
+    }  
+  }
+  img.updatePixels();
+  return img;
+  //image(img, 68, 68);
+}
+
+PImage setImgVals(PImage img, float[][] data) {
+  img.loadPixels();
+  int px = 0;
+  for (int j = 0; j < data.length; ++j) {
+    for (int i = 0; i < data[0].length; i++) {
+      img.pixels[px++] = color(250*data[j][i]); 
+    }  
+  }
+  img.updatePixels();
+  return img;
+}
