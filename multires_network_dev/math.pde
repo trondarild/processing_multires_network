@@ -7,6 +7,11 @@ float[] zeros (int dim){
   float [] ret = new float[dim];
   return ret;
 }
+
+float[][][][] zeros(int r, int c, int rr, int cc) {
+  return new float[r][c][rr][cc];
+
+}
 float[][] id(int sz){
   float [][] ret = zeros(sz, sz);
   for (int j=0; j < ret.length; j++)
