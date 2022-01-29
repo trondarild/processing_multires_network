@@ -308,6 +308,7 @@ void drawColGrid(float x1, float y1, float dim, float margin, String title, floa
     float x=x1;
     for(int i=0; i<top[0].length; i++){
       pushStyle();
+      strokeWeight(0);
       if(top[j][i] > 0) fill(hue(exccol), saturation(exccol), top[j][i]);
       else if(top[j][i] < 0) fill(hue(inhcol), saturation(inhcol), top[j][i]);
       else fill(0);
