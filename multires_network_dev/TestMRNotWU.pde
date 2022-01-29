@@ -37,7 +37,7 @@ class TestMRNotWU {
         layer.inputUp(subm);
         layer.inputDown(layer.outputUp());
         layer.cycle();
-        printMatrix("w", layer.weightViz());
+        //printMatrix("w", layer.weightViz());
     }
 
     void draw() {
@@ -54,14 +54,20 @@ class TestMRNotWU {
         
         translate(10,50);
         pushMatrix();
-        drawGrid(subm, "input up");
+        
+        drawImage(subm, "Input", 5);
         translate(0, 100);
-        drawGrid(layer.outputUp(), "output up");
+        //drawGrid(layer.outputUp(), "output up");
+        //image(matrixToImage(layer.outputUp()), 0,0);
+        drawImage(layer.outputUp(), "Output", 3);
         translate(200, 0);
-        drawGrid(layer.weightViz(), "weights");
+        //drawGrid(layer.weightViz(), "weights");
+        //image(matrixToImage(layer.weightViz()), 0, 0);
+        drawImage(layer.weightViz(), "Weights", 7);
         translate(0, 100);
-        drawGrid(layer.outputDown(), "regeneration");
-            
+        //drawGrid(layer.outputDown(), "regeneration");
+        //image(matrixToImage(layer.outputDown()), 0,0);
+        drawImage(layer.outputDown(), "Top down", 5);    
         popMatrix();
 
         popMatrix();
@@ -97,6 +103,18 @@ class TestMRNotWU {
         text(title, 0, 0);
         translate(0, 20);
         drawColGrid(0, 0, 3, 2, "", multiply(200, g));
+        popMatrix();
+    }
+    
+    void drawImage(float[][] d, String title, float scale) {
+        pushMatrix();
+        translate(10, 20);
+        text(title, 0, 0);
+        translate(0, 20);
+        pushMatrix();
+        scale(scale,scale);
+        image(matrixToImage(d), 0,0);
+        popMatrix();
         popMatrix();
     }
 
