@@ -65,6 +65,13 @@ class MultiResLayer {
 
     }
 
+    float[][][][] weights() {
+        return w;
+    }
+
+    void weights(float[][][][] aw) {
+        this.w = aw;
+    }
 
 
 
@@ -119,6 +126,7 @@ class MultiResLayerSpec {
     boolean     use_top_down = true;
 
     float       act_gain = 1.0;
+    int         max_batch = 50;
     
 
 
@@ -443,8 +451,9 @@ class MultiResLayerSpec {
                         // subtract inhibition from contents of
                         // input buffer to get change in weights
                         delta_buffer = subtract(input_buffer, inhibition_buffer); // 16%
+                        
                         // calculate weight change: delta* (alpha*activity)
-                        unit.dw[sj][si] = multiply(alpha_eff * unit.activity[sj][si][mj][mi], delta_buffer); // 6%               
+                        unit.dw[sj][si] = limitval(-1, 1, multiply(alpha_eff * unit.activity[sj][si][mj][mi], delta_buffer)); // 6%               
                         // TAT 2015-11-08: moved from outside loop - 
                         // looks like it works, but may give diff results
                         // is now cumulated for each pixel instead of just last
