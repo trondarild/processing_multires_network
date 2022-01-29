@@ -9,10 +9,10 @@ class TestIm2Row {
 
     
 
-    int rf_x = 5; // size of receptive field
-    int rf_y = 5;
-    int blk_x = 5; // partition size for receptive fields, when using spans: blocks is fraction of rf_size
-    int blk_y = 5;
+    int rf_x = 10; // size of receptive field
+    int rf_y = 10;
+    int blk_x = rf_x; // partition size for receptive fields, when using spans: blocks is fraction of rf_size
+    int blk_y = rf_y;
     int spn_x = 0; // spacing between blocks; 0 in first layers
     int spn_y = 0;
     int rf_inc_x = 1; // increment for rf windowing
