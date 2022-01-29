@@ -68,8 +68,9 @@ float[] reset(float[] a) {
 
 float[][] reset(float[][] a){
   for (int j=0; j<a.length; j++)
-    for (int i=0; i<a[0].length; i++)
-      a[j][i] = 0;
+    Arrays.fill(a[j], 0);
+    //for (int i=0; i<a[0].length; i++)
+    //  a[j][i] = 0;
   return a;
 }
 
@@ -96,7 +97,7 @@ float[] mult_per_elm(float[] a, float[] b){
 }
 
 float[][] mult_per_elm(float[][] a, float[][] b){
-  assert(a.length == b.length && a[0].length == b[0].length);
+  assert(a.length == b.length && a[0].length == b[0].length) : "rows a: " + a.length + " vs b " + b.length +"; cols: "+ a[0].length +" vs "+ b[0].length;
   float[][] retval = zeros(a.length, a[0].length);
   for (int j = 0; j < a.length; ++j) {
     retval[j] = mult_per_elm(a[j], b[j]);
@@ -117,7 +118,8 @@ float dotProd(float[] a, float[] b){
 }
 
 float[][] dotProd(float[][] a, float[][] b){
-  // TODO assert sizes; assumes ab' is given
+  // assumes: b is already transposed
+  assert(a[0].length == b[0].length);
   float[][] retval = zeros(a.length, b.length);
   for (int j = 0; j < a.length; ++j) {
     for (int i = 0; i < b.length; ++i) {
@@ -128,7 +130,8 @@ float[][] dotProd(float[][] a, float[][] b){
 }
 
 float[][] dotProdT(float[][] a, float[][] b){
-  // TODO assert sizes; assumes ab' is given
+  // assumes b is not transposed
+  assert(a[0].length == b.length);
   float[][] bt = transpose(b);
   float[][] retval = zeros(a.length, bt.length);
   for (int j = 0; j < a.length; ++j) {
@@ -164,11 +167,31 @@ float[] ravel(float[][] a){
   return ret;
 }
 
+float[] ravel(float[][][][] a) {
+  float[] ret = zeros(a.length*a[0].length*a[0][0].length*a[0][0][0].length);
+  int cnt = 0;
+  for (int j=0; j<a.length; j++)
+    for (int i=0; i<a[0].length; i++)
+      for (int jj=0; jj<a[0][0].length; jj++)
+        for (int ii=0; ii<a[0][0][0].length; ii++)
+          ret[cnt++] = a[j][i][jj][ii];
+  return ret;
+
+}
+
 float[] subtract(float[] a, float[] b){
   float [] ret = zeros(a.length);
   for (int j=0; j<ret.length; j++)
       ret[j] = a[j] - b[j];
   return ret;
+}
+
+float[][] subtract(float[][] a, float[][] b) {
+  assert(a.length == b.length && a[0].length == a[0].length) : "subtract: unequal length";
+  float[][] retval = zeros(a.length, a[0].length);
+  for (int j=0; j<retval.length; j++)
+      retval[j] = subtract(a[j], b[j]);
+  return retval;
 }
 
 float[] subtract(float[] a, float b){
@@ -184,6 +207,15 @@ float[] divide(float[] a, float b){
   for (int j=0; j<ret.length; j++)
       ret[j] = a[j] / b;
   return ret;
+}
+
+float[][] divide_per_elm(float[][] a, float[][] b) {
+  float[][] ret = zeros(a.length, a[0].length);
+  for (int j=0; j<ret.length; j++)
+    for (int i=0; i<ret[0].length; i++)
+      ret[j][i] = a[j][i] / b[j][i];
+  return ret;
+
 }
 
 float[][] subtractMatrix(float[][] a, float[][] b){
@@ -667,6 +699,14 @@ float[][] transpose(float[][] a){
   return retval;
 }
 
+float[][] transpose(float[] a) {
+  float[][] retval = zeros(a.length, 1);
+  for (int i = 0; i < a.length; ++i) {
+    retval[i][0] = a[i];
+  }
+  return retval;
+}
+
 float gaussian1(float x, float sigma)
 {
   return exp(-sq(x)/(2*sq(sigma)));
@@ -692,6 +732,7 @@ float norm1(float[][] a) {
   for (int j = 0; j < a.length; ++j) {
     for (int i=0; i < a[0].length; i++)
       r += abs(a[j][i]);
+  }
   return r;
 }
 
