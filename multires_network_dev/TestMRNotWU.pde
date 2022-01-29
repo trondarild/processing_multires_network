@@ -13,8 +13,10 @@ class TestMRNotWU {
     int data_y = 0;
     
     TestMRNotWU() {
-        spec.input_size_x = 9;
-        spec.input_size_y = 9;
+        spec.input_size_x = 16;
+        spec.input_size_y = 16;
+        spec.rf_size_x = 3;
+        spec.rf_size_y = 3;
         spec.rnd_mean = 0.01;
         
         layer = new MultiResLayer(spec, "Layer");
@@ -54,7 +56,7 @@ class TestMRNotWU {
         pushMatrix();
         drawGrid(subm, "input up");
         translate(0, 100);
-         // drawGrid(layer.outputUp(), "output up");
+        drawGrid(layer.outputUp(), "output up");
         translate(200, 0);
         drawGrid(layer.weightViz(), "weights");
         translate(0, 100);
