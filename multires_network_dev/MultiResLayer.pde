@@ -153,10 +153,10 @@ class MultiResLayerSpec {
         unit.output_up = zeros(map_size_y*som_size_y, map_size_x*som_size_y);
         unit.input_down = zeros(map_size_y*som_size_y, map_size_x*som_size_y);
         unit.output_down = zeros(input_size_y, input_size_x);
-        unit.activity = zeros(som_size_x, som_size_y, map_size_x, map_size_y);
+        unit.activity = zeros(som_size_y, som_size_x, map_size_y, map_size_x);
         // unit.reconstruction = zeros(input_size_y, input_size_x);
-        unit.w = randomMatrix4(som_size_x, som_size_y, rf_size_x, rf_size_y, rnd_mean + rnd_var); // weights
-        unit.dw = zeros(som_size_x, som_size_y, rf_size_x, rf_size_y); // weights
+        unit.w = randomMatrix4(som_size_y, som_size_x, rf_size_y, rf_size_x, rnd_mean + rnd_var); // weights
+        unit.dw = zeros(som_size_y, som_size_x, rf_size_y, rf_size_x); // weights
         unit.weights_viz = zeros(rf_size_y*som_size_y, rf_size_x*som_size_x); // weight visualiz
         alpha_eff = alpha / map_size_x * map_size_y;
         unit.corr_filter = generateCorrectionFilter(map_size_x*map_size_y, rf_size_x*rf_size_y); // TODO only once
@@ -453,7 +453,7 @@ class MultiResLayerSpec {
                         delta_buffer = subtract(input_buffer, inhibition_buffer); // 16%
                         
                         // calculate weight change: delta* (alpha*activity)
-                        unit.dw[sj][si] = limitval(-1, 1, multiply(alpha_eff * unit.activity[sj][si][mj][mi], delta_buffer)); // 6%               
+                        unit.dw[sj][si] = limitval(-0.5, 0.5, multiply(alpha_eff * unit.activity[sj][si][mj][mi], delta_buffer)); // 6%               
                         // TAT 2015-11-08: moved from outside loop - 
                         // looks like it works, but may give diff results
                         // is now cumulated for each pixel instead of just last
