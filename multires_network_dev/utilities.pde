@@ -1177,3 +1177,7 @@ PImage setImgVals(PImage img, float[][] data) {
   img.updatePixels();
   return img;
 }
+
+void printSize(float[][] mat, String name) {
+  println(name + ": " + mat.length + ", " + mat[0].length);
+}
