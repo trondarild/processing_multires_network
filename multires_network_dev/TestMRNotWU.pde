@@ -18,6 +18,8 @@ class TestMRNotWU {
         spec.rf_size_x = 3;
         spec.rf_size_y = 3;
         spec.rnd_mean = 0.01;
+        spec.som_size_x = 4;
+        spec.som_size_y = 3;
         
         layer = new MultiResLayer(spec, "Layer");
     }
