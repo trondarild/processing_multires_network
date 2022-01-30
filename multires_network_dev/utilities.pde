@@ -1153,7 +1153,7 @@ void printStrMat(String[][] a) {
 }
 
 PImage matrixToImage(float[][] data) {
-  PImage img = createImage(data.length, data[0].length, ALPHA);
+  PImage img = createImage(data[0].length, data.length, ALPHA); // w, h not row col
   img.loadPixels();
   int px = 0;
   for (int j = 0; j < data.length; ++j) {
