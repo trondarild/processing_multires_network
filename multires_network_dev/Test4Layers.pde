@@ -29,7 +29,7 @@ class Test4Layers {
     Test4Layers() {
         spec_l1.input_size_x = 64;
         spec_l1.input_size_y = 64;
-        spec_l1.rf_size_x = 3;
+        spec_l1.rf_size_x = 4;
         spec_l1.rf_size_y = 3;
         spec_l1.rnd_mean = 0.01;
         
@@ -68,7 +68,7 @@ class Test4Layers {
         spec_l3.block_size_x = spec_l2.som_size_x;
         spec_l3.block_size_y = spec_l2.som_size_y;
         spec_l3.rnd_mean = 0.001;
-        spec_l3.alpha = 0.00001;
+        spec_l3.alpha = 0.0001;
 
         layer_3 = new MultiResLayer(spec_l3, "Layer 3");
         println("layer3 mapsize: " + spec_l3.map_size_y + ", " + spec_l3.map_size_x);
@@ -78,16 +78,16 @@ class Test4Layers {
         spec_l4.input_size_y = layer_3.outputUpSize()[0];
         spec_l4.som_size_x = 8;
         spec_l4.som_size_y = 8;
-        spec_l4.rf_size_x = spec_l4.input_size_x; //11 * spec_l3.som_size_x;
-        spec_l4.rf_size_y = spec_l4.input_size_y; //8 * spec_l3.som_size_y;
-        spec_l4.rf_inc_x = 11*spec_l3.som_size_x;
-        spec_l4.rf_inc_y = 8*spec_l3.som_size_y;
-        spec_l4.span_size_x = 0;//2 * spec_l2.som_size_x;
-        spec_l4.span_size_y = 0;//2 * spec_l2.som_size_y;
-        spec_l4.block_size_x = spec_l4.rf_size_x; //spec_l2.som_size_x;
-        spec_l4.block_size_y = spec_l4.rf_size_y; //spec_l2.som_size_y;
+        spec_l4.rf_size_x = 4 * spec_l3.som_size_x;
+        spec_l4.rf_size_y = 4 * spec_l3.som_size_y;
+        spec_l4.rf_inc_x = spec_l3.som_size_x;
+        spec_l4.rf_inc_y = spec_l3.som_size_y;
+        spec_l4.span_size_x = 2 * spec_l3.som_size_x;
+        spec_l4.span_size_y = 2 * spec_l3.som_size_y;
+        spec_l4.block_size_x = spec_l3.som_size_x;
+        spec_l4.block_size_y = spec_l3.som_size_y;
         spec_l4.rnd_mean = 0.001;
-        spec_l4.alpha = 0.00001;
+        spec_l4.alpha = 0.0001;
 
         layer_4 = new MultiResLayer(spec_l4, "Layer 4");
         println("layer4 mapsize: " + spec_l4.map_size_y + ", " + spec_l4.map_size_x);
@@ -97,6 +97,8 @@ class Test4Layers {
 
     void init(float[][] inp) {
         data = inp;
+        data_y = data.length / 2 - spec_l1.input_size_y / 2;
+        data_x = data[0].length / 2 - spec_l1.input_size_y / 2;
     }
 
     void setInput(float[] inp) {
@@ -118,20 +120,22 @@ class Test4Layers {
         layer_4.update_weights = train_4;
 
 
-        data_y = int(random(data.length - spec_l1.input_size_y));
-        data_x = int(random(data[0].length - spec_l1.input_size_x));
+        // data_y = int(random(data.length - spec_l1.input_size_y));
+        // data_x = int(random(data[0].length - spec_l1.input_size_x));
+        // data_y = data.length / 2 - spec_l1.input_size_y / 2;
+        // data_x = data[0].length / 2 - spec_l1.input_size_y / 2;
         subm = multiply(1.0/255, getSubmatrix(data_y, data_x, spec_l1.input_size_x, spec_l1.input_size_y, data));
         
         layer_1.inputUp(subm);
-        layer_1.inputDown(layer_2.outputDown());
+        layer_1.inputDown(train_1 ? layer_1.outputUp() : layer_2.outputDown());
         layer_1.cycle();
 
         layer_2.inputUp(layer_1.outputUp());
-        layer_2.inputDown(layer_3.outputDown());
+        layer_2.inputDown(train_2 ? layer_2.outputUp() : layer_3.outputDown());
         layer_2.cycle();
 
         layer_3.inputUp(layer_2.outputUp());
-        layer_3.inputDown(layer_4.outputDown());
+        layer_3.inputDown(train_3 ? layer_3.outputUp() : layer_4.outputDown());
         layer_3.cycle();
 
         layer_4.inputUp(layer_3.outputUp());
@@ -170,7 +174,7 @@ class Test4Layers {
         drawLayer(layer_3, scl3);
 
         translate(450, 0);
-        float[] scl4 = {4,0.125,0.55};
+        float[] scl4 = {0.35,0.75,0.55};
         drawLayer(layer_4, scl4);
         
         popMatrix();
