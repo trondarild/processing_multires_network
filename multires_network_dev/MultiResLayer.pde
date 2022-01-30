@@ -28,6 +28,10 @@ class MultiResLayer {
         this.spec.init(this); // calculate all sizes and init arrays
     }
 
+    MultiResLayer(JSONObject saved) {
+        // TODO
+    }
+
     void inputUp(float[][] inp){
         // upward, learning, transforming
         input_up = inp;
@@ -73,6 +77,10 @@ class MultiResLayer {
         this.w = aw;
     }
 
+    JSONObject toJSON() {
+        return new JSONObject();
+    }
+
 
 
     
@@ -113,7 +121,7 @@ class MultiResLayerSpec {
     
     int         output_type;       // 0 = combined, 1 = separate 
     
-    float		alpha = 0.05;              // RF learning constant
+    float		alpha = 0.001;              // RF learning constant
     float       alpha_eff = alpha;
     float		alpha_min = 0.01;
     float		alpha_max = 0.1;
@@ -134,6 +142,11 @@ class MultiResLayerSpec {
 
     }
 
+    MultiResLayerSpec(JSONObject saved) {
+
+    }
+
+
     void init(MultiResLayer unit) {
         // unit.input_up = zeros();
         map_size_x = calcMapSize(
@@ -150,8 +163,8 @@ class MultiResLayerSpec {
             this.span_size_y,
             this.rf_inc_y
         );
-        unit.output_up = zeros(map_size_y*som_size_y, map_size_x*som_size_y);
-        unit.input_down = zeros(map_size_y*som_size_y, map_size_x*som_size_y);
+        unit.output_up = zeros(map_size_y*som_size_y, map_size_x*som_size_x);
+        unit.input_down = zeros(map_size_y*som_size_y, map_size_x*som_size_x);
         unit.output_down = zeros(input_size_y, input_size_x);
         unit.activity = zeros(som_size_y, som_size_x, map_size_y, map_size_x);
         // unit.reconstruction = zeros(input_size_y, input_size_x);
@@ -544,6 +557,10 @@ class MultiResLayerSpec {
             }
         }
         return filter;
+    }
+
+    JSONObject toJSON() {
+        return new JSONObject();
     }
     
 }
