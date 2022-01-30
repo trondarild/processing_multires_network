@@ -28,8 +28,10 @@ class TestTwoLayers {
 
         spec_l2.input_size_x = layer_1.outputUpSize()[1];
         spec_l2.input_size_y = layer_1.outputUpSize()[0];
-        spec_l2.rf_size_x = 3 * spec_l1.som_size_x;
-        spec_l2.rf_size_y = 3 * spec_l1.som_size_y;
+        spec_l2.som_size_x = 3;
+        spec_l2.som_size_y = 4;
+        spec_l2.rf_size_x = 2 * spec_l1.som_size_x;
+        spec_l2.rf_size_y = 2 * spec_l1.som_size_y;
         spec_l2.rf_inc_x = spec_l1.som_size_x;
         spec_l2.rf_inc_y = spec_l1.som_size_y;
         spec_l2.span_size_x = 2 * spec_l1.som_size_x;
@@ -37,6 +39,7 @@ class TestTwoLayers {
         spec_l2.block_size_x = spec_l1.som_size_x;
         spec_l2.block_size_y = spec_l1.som_size_y;
         spec_l2.rnd_mean = 0.001;
+        spec_l2.alpha = 0.005;
 
         layer_2 = new MultiResLayer(spec_l2, "Layer 2");
 
@@ -92,11 +95,11 @@ class TestTwoLayers {
         translate(0, 100);
         //drawGrid(layer.outputUp(), "output up");
         //image(matrixToImage(layer.outputUp()), 0,0);
-        drawImage(layer_2.outputUp(), "Output l2", 1);
+        drawImage(layer_2.outputUp(), "Output l2", 0.5);
         translate(200, 0);
         //drawGrid(layer.weightViz(), "weights");
         //image(matrixToImage(layer.weightViz()), 0, 0);
-        drawImage(layer_2.weightViz(), "Weights l2", 7);
+        drawImage(layer_2.weightViz(), "Weights l2", 2);
         translate(0, 100);
         //drawGrid(layer.outputDown(), "regeneration");
         //image(matrixToImage(layer.outputDown()), 0,0);
