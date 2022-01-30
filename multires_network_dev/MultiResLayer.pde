@@ -391,13 +391,13 @@ class MultiResLayerSpec {
     }
     
     void updateWeights_4d (MultiResLayer unit) {
-        float[][] input_buffer = zeros(rf_size_x, rf_size_y);
+        float[][] input_buffer = zeros(rf_size_y, rf_size_x);
         // inhibition buffer is the size of the receptive field
-        float[][] inhibition_buffer = zeros(rf_size_x, rf_size_y);
-        float[][] delta_buffer = zeros(rf_size_x, rf_size_y);
+        float[][] inhibition_buffer = zeros(rf_size_y, rf_size_x);
+        float[][] delta_buffer = zeros(rf_size_y, rf_size_x);
         int rf_size = rf_size_x*rf_size_y;
         
-
+        
         
         for(int mj=0; mj<map_size_y; mj++){
             for(int mi=0; mi<map_size_x; mi++){
