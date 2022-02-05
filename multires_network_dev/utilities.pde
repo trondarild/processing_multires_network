@@ -983,7 +983,8 @@ float[] getSubArray(float[] source, int start, int length){
 }
 
 float[][] mapFrom4d(float [][][][] source, 
-      int sx, int sy, int kx, int ky) {
+      int sy, int sx, int ky, int kx) {
+  // TODO change to just j, i for dest.
   float[][] retval = zeros(sx*sy, kx*ky);
   int k=0;
   for (int ssy = 0; ssy < sy; ++ssy)
@@ -1006,7 +1007,7 @@ float[][] mapFrom4d(float [][][][] source,
 }
 
 float[][][][] mapTo4d(float[][] source,
-        int sx, int sy, int kx, int ky) {
+        int sy, int sx, int ky, int kx) {
   float[][][][] retval = new float[sy][sx][ky][kx];
   int k=0;
   for (int ssy = 0; ssy < sy; ++ssy)
@@ -1023,6 +1024,29 @@ float[][][][] mapTo4d(float[][] source,
               }
           }
           k++;
+      }
+  }
+  return retval;    
+}
+
+float[][][][] mapTo4d(float[] source, 
+int sy, int sx, int ky, int kx) {
+  float[][][][] retval = new float[sy][sx][ky][kx];
+  int k=0;
+  for (int ssy = 0; ssy < sy; ++ssy)
+  {
+      for (int ssx = 0; ssx < sx; ++ssx)
+      {
+          
+          for (int kky = 0; kky < ky; ++kky)
+          {
+              for (int kkx = 0; kkx < kx; ++kkx)
+              {
+                  retval[ssy][ssx][kky][kkx] = source [k];
+                  k++;        
+              }
+          }
+          
       }
   }
   return retval;    
