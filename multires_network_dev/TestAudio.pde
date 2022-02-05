@@ -22,6 +22,15 @@ class TestAudio {
 
     boolean train_1 = false;
     boolean train_2 = false;
+
+    int savectr = 0;
+    int saveinterval = 50;
+
+    String fname = "audiotest.json";
+
+    float cosindiff = 0;
+    Buffer diffbuff = new Buffer(100);
+    Buffer avgbuff = new Buffer(100);
     
     TestAudio() {
 
@@ -52,6 +61,14 @@ class TestAudio {
 
         layer_2 = new MultiResLayer(spec_l2, "Layer 2");
 
+        // try loading file
+        if(createInput(fname)!= null)
+          this.load(fname);
+        else {
+          println(fname + " was not found.");
+        }
+
+
 
     }
 
@@ -61,6 +78,30 @@ class TestAudio {
 
     void setInput(float[] inp) {
         
+    }
+
+    void save(String name) {
+        
+        // println(l1w.toString());
+        JSONArray stack = new JSONArray();
+        stack.setJSONObject(0, layer_1.toJSON());
+        stack.setJSONObject(1, layer_2.toJSON());
+        saveJSONArray(stack, "data/" + name);
+        
+
+    }
+
+    void load(String name) {
+
+            // load it
+        JSONArray loadvalues = loadJSONArray(name);
+        
+        // println(loadvalues.toString());
+        MultiResLayer[] layers = {layer_1, layer_2};
+        for (int i = 0; i < loadvalues.size(); i++) {
+            JSONObject l = loadvalues.getJSONObject(i);
+            layers[i].fromJSON(l);
+        }
     }
 
     void tick() {
@@ -86,6 +127,13 @@ class TestAudio {
         layer_2.inputDown(layer_2.outputUp());
         layer_2.cycle();
         //printMatrix("w", layer.weightViz());
+        if(savectr++ % saveinterval == 0) this.save(this.fname);
+
+        // calculate cosine diff
+        cosindiff = cosine_diff(transpose(data)[0], transpose(layer_1.outputDown())[0]);
+        diffbuff.append(cosindiff);
+        avgbuff.append(mean(diffbuff.array()));
+        
     }
 
     void draw() {
@@ -104,6 +152,19 @@ class TestAudio {
         pushMatrix();
         
         drawImage(multiply(200, subm), "Input", 2.5);
+
+        
+        pushMatrix();
+        translate(100, 0);
+        scale(1.2);
+        text("Avg Cosine diff:" + avgbuff.array()[0], 0, 0);
+        popMatrix();
+
+        pushMatrix();
+        translate(150, 0);
+        // drawTimePlot(diffbuff.array(), "Diff");
+        drawTimeSeries(avgbuff.array(), 1.2, 1, 0);
+        popMatrix();
         
         translate(0, 250);
         float[] scl1 = {0.5, 7, 2.5}; // output weights topdown
