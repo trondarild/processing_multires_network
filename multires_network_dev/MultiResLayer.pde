@@ -106,6 +106,10 @@ class MultiResLayer {
             loadary[j] = ww.getFloat("value");
         }
         float[][][][] loaded_w = mapTo4d(loadary, wj, wi, wk, wl);
+        println("current w: " + this.w.length + ", " + this.w[0].length 
+             + ", " + this.w[0][0].length + ", " + this.w[0][0][0].length);
+        println("loaded w: " + loaded_w.length + ", " + loaded_w[0].length 
+             + ", " + loaded_w[0][0].length + ", " + loaded_w[0][0][0].length);
         this.weights(loaded_w);
 
     }
