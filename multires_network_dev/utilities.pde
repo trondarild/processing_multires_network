@@ -345,6 +345,7 @@ void drawTimeSeries(float[] series, float maxy, float x_margin, float thresh){
  //fill(150);
  noFill();
  strokeWeight(1);
+ stroke(#e76f51);
  beginShape();
  for(int i=0; i<series.length; i++){
    float y = y_length*(1 - series[i]/maxy);

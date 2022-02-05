@@ -119,7 +119,7 @@ float dotProd(float[] a, float[] b){
 
 float[][] dotProd(float[][] a, float[][] b){
   // assumes: b is already transposed
-  assert(a[0].length == b[0].length);
+  assert(a[0].length == b[0].length): "a[0]: " + a[0].length + " vs b[0]: " + b[0].length;
   float[][] retval = zeros(a.length, b.length);
   for (int j = 0; j < a.length; ++j) {
     for (int i = 0; i < b.length; ++i) {
