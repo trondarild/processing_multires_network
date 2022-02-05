@@ -13,6 +13,18 @@ int midiDevice  = 0;
 import processing.video.*;
 Movie myMovie;
 
+import processing.sound.*;
+SoundFile file;
+
+FFT fft;
+// AudioIn in;
+int bands = 32;
+int maxtime = 32;
+int maxband = 32;
+float[] spectrum = new float[bands];
+Buffer[] specbuf = new Buffer[maxband];
+int ctr = 0;
+
 
 
 //TestIm2Row test = new TestIm2Row(); 
@@ -20,7 +32,8 @@ Movie myMovie;
 //TestMRNotWU test = new TestMRNotWU();
 //TestTwoLayers test = new TestTwoLayers();
 //Test3Layers test = new Test3Layers();
-Test4Layers test = new Test4Layers();
+//Test4Layers test = new Test4Layers();
+TestAudio test = new TestAudio();
 
 void setup(){
 	size(2000, 1000);
@@ -29,18 +42,50 @@ void setup(){
   MidiBus.list(); 
   myBus = new MidiBus(this, midiDevice, 1); 
 
-  myMovie = new Movie(this, "test.mp4");
-  myMovie.loop();
+  //myMovie = new Movie(this, "test.mp4");
+  //myMovie.loop();
   
   //test.init(getColorGrid(loadImage("testimg.png"), 1));
+  for(int i=0; i<maxband; i++) specbuf[i] = new Buffer(maxtime); 
+  file = new SoundFile(this, "forest.mp3");
+  file.loop();
+  file.amp(0.9);
+      
+  // Create an Input stream which is routed into the Amplitude analyzer
+  fft = new FFT(this, bands);
+  //in = new AudioIn(this, 0);
+  
+  // start the Audio Input
+  //in.start();
+  
+  // patch the AudioIn
+  fft.input(file);
 
 }
 
 void update(){
-  if (myMovie.available()) {
-    myMovie.read();
+  //if (myMovie.available()) {
+  //  myMovie.read();
+  //}
+  //test.init(getColorGrid(myMovie, 1));
+  fft.analyze(spectrum);
+  for(int i = 0; i < bands; i++){
+    // The result of the FFT is normalized
+    // draw the line for frequency band i scaling it up by 5 to get more amplitude.
+    if(i < maxband)
+      specbuf[i].append(spectrum[i]);
+      // pushStyle();
+      // stroke(200);
+      // float maxlen = 20;
+      // pushMatrix();
+      // translate(100, 100);
+      // scale(10,10);
+      // line( i, 0, i, 0 - spectrum[i]*maxlen );
+      // popMatrix();
+      // popStyle();
   }
-  test.init(getColorGrid(myMovie, 1));
+  float[][] viz = bufferArrayToMatrix(specbuf);
+  test.init(viz);
 	test.tick();
 }
 
@@ -97,3 +142,11 @@ void movieEvent(Movie m) {
   m.read();
 }
 */
+
+
+float[][] bufferArrayToMatrix(Buffer[] buf) {
+  float[][] retval = zeros(buf.length, buf[0].array().length);
+  for(int i=0; i<buf.length; i++)
+    retval[i] = buf[i].array();
+  return retval;
+}
