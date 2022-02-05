@@ -78,7 +78,36 @@ class MultiResLayer {
     }
 
     JSONObject toJSON() {
-        return new JSONObject();
+        JSONObject retval = new JSONObject();
+        JSONArray weights = new JSONArray();
+        retval.setInt("wj", w.length);
+        retval.setInt("wi", w[0].length);
+        retval.setInt("wk", w[0][0].length);
+        retval.setInt("wl", w[0][0][0].length);
+        float[] w_array = ravel(this.weights());
+        for (int i = 0; i < w_array.length; i++) {
+            JSONObject ww = new JSONObject();
+            ww.setFloat("value", w_array[i]);
+            weights.setJSONObject(i, ww);
+        }
+        retval.setJSONArray("weights", weights);
+        return retval;
+    }
+
+    void fromJSON(JSONObject layer) {
+        JSONArray weights = layer.getJSONArray("weights");
+        float[] loadary = new float[weights.size()];
+        int wj = layer.getInt("wj");
+        int wi = layer.getInt("wi");
+        int wk = layer.getInt("wk");
+        int wl = layer.getInt("wl");
+        for (int j = 0; j< weights.size(); j++){
+            JSONObject ww = weights.getJSONObject(j); 
+            loadary[j] = ww.getFloat("value");
+        }
+        float[][][][] loaded_w = mapTo4d(loadary, wj, wi, wk, wl);
+        this.weights(loaded_w);
+
     }
 
 
