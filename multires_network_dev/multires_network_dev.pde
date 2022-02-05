@@ -33,11 +33,12 @@ int ctr = 0;
 //TestTwoLayers test = new TestTwoLayers();
 //Test3Layers test = new Test3Layers();
 //Test4Layers test = new Test4Layers();
-//TestAudio test = new TestAudio();
-TestSaveLoad test;
+TestAudio test; //= new TestAudio();
+//TestSaveLoad test;
 
 void setup(){
-  test = new TestSaveLoad();
+  //test = new TestSaveLoad();
+  test = new TestAudio(); // create here due to loading weights from file
 	size(2000, 1000);
 	// unit.show_config();
   frameRate(30);
@@ -89,6 +90,7 @@ void update(){
   float[][] viz = bufferArrayToMatrix(specbuf);
   test.init(viz);
 	test.tick();
+  
 }
 
 void draw(){
