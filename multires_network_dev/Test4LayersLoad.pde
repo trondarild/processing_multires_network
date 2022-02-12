@@ -1,5 +1,5 @@
 class Test4LayersLoad {
-    String modelname = "Test Multires two layers";
+    String modelname = "Test Multires four layers";
     String description = "";
     int inputvecsize = 3;
     float[] inputval = zeros(inputvecsize);
@@ -37,8 +37,8 @@ class Test4LayersLoad {
         spec_l1.rf_size_y = 3;
         spec_l1.som_size_x = 12;
         spec_l1.som_size_y = 3;
-        spec_l1.rf_inc_x = 3;
-        spec_l1.rf_inc_y = 3;
+        spec_l1.rf_inc_x = 1;
+        spec_l1.rf_inc_y = 1;
         spec_l1.rnd_mean = 0.01;
         spec_l1.block_size_x = 3;
         spec_l1.block_size_y = 3;
@@ -189,11 +189,11 @@ class Test4LayersLoad {
         drawLayer(layer_1, scl1);
         
         translate(450, 0);
-        float[] scl2 = {2,0.25,1};
+        float[] scl2 = {1,0.25,1};
         drawLayer(layer_2, scl2);
 
         translate(450, 0);
-        float[] scl3 = {3,0.2,1};
+        float[] scl3 = {1,0.2,1};
         drawLayer(layer_3, scl3);
  
         // translate(450, 0);
@@ -296,7 +296,7 @@ class Test4LayersLoad {
     float[][][][] loadWeights(String fname, int somy, int somx, int rfy, int rfx) {
         String s[] = loadStrings(fname);
         String spl[] = splitTokens(s[0], "\t");
-        float[] w = zeros(spl.length);
+        float[] w = ones(spl.length);
         for (int i = 0; i < w.length; ++i) {
             w[i] = float(spl[i]);
         }
