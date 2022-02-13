@@ -311,7 +311,7 @@ float[][] limitval(float lower, float upper, float[][] a){
 }
 
 float[][] getSubmatrix(int row, int col, int w, int h, float[][] m){
-  float[][] ret = zeros(w, h);
+  float[][] ret = zeros(h, w);
   for (int j=0; j<ret.length; j++){
     for (int i=0; i<ret[0].length; i++){
       ret[j][i] = m[row+j][col+i];  
