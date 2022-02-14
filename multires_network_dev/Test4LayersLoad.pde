@@ -35,9 +35,9 @@ class Test4LayersLoad {
         String l1w_name = "L1_rfx=3_rfy=3_incx=3_incy=3_somx=12_somy=3_block=3_span=0.dat";
         float[][][][] wl1 = loadWeights(l1w_name, 3, 12, 3, 3);
 
-
-        spec_l1.input_size_x = 64;
-        spec_l1.input_size_y = 36;
+        // w 62 h 38 -> 5, 3
+        spec_l1.input_size_x = 26;
+        spec_l1.input_size_y = 14;
         spec_l1.rf_size_x = 3;
         spec_l1.rf_size_y = 3;
         spec_l1.som_size_x = 12;
@@ -132,7 +132,7 @@ class Test4LayersLoad {
 
     void init(float[][] inp) {
         //printSize(inp, "inp");
-        this.data = scaleMatrix(inp, 0.25, 0.25);;
+        this.data = scaleMatrixToSize(inp, spec_l1.input_size_x, spec_l1.input_size_y);;
         data_y = (this.data.length / 2) - (spec_l1.input_size_y / 2);
         data_x = (this.data[0].length / 2) - (spec_l1.input_size_x / 2);
     }
@@ -227,10 +227,10 @@ class Test4LayersLoad {
         translate(10,50);
         pushMatrix();
         
-        drawImage(subm, "Input", 2.5);
+        drawImage(subm, "Input", 7);
         
         translate(0, 250);
-        float[] scl1 = {0.05, 0.2, 1.5}; // output weights topdown
+        float[] scl1 = {0.05, 0.2, 7}; // output weights topdown
         drawLayer(layer_1, scl1);
         
         translate(450, 0);
@@ -242,7 +242,7 @@ class Test4LayersLoad {
         drawLayer(layer_3, scl3);
  
         translate(450, 0);
-        float[] scl4 = {0.1,0.05,0.2};
+        float[] scl4 = {3,0.025,3};
         drawLayer(layer_4, scl4);
         
         popMatrix();
