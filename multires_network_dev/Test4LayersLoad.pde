@@ -25,14 +25,19 @@ class Test4LayersLoad {
     boolean train_2 = false;
     boolean train_3 = false;
     boolean train_4 = false;
+
+    int savectr = 0;
+    int saveinterval = 50;
+
+    String fname = "layertrain4b.json";
     
     Test4LayersLoad() {
         String l1w_name = "L1_rfx=3_rfy=3_incx=3_incy=3_somx=12_somy=3_block=3_span=0.dat";
         float[][][][] wl1 = loadWeights(l1w_name, 3, 12, 3, 3);
 
 
-        spec_l1.input_size_x = 128;
-        spec_l1.input_size_y = 64;
+        spec_l1.input_size_x = 64;
+        spec_l1.input_size_y = 36;
         spec_l1.rf_size_x = 3;
         spec_l1.rf_size_y = 3;
         spec_l1.som_size_x = 12;
@@ -94,39 +99,72 @@ class Test4LayersLoad {
 
 
         // String l4w_name = "L4_rfx=48_rfy=24_incx=48_incy=24_somx=32_somy=16_blockx=48_blocky=24_spanx=264_spany=132.dat";
-        String l4w_name = "L4_rfx=48_rfy=24_incx=48_incy=24_somx=32_somy=16_blockx=48_blocky=24_spanx=0_spany=0.dat";
-        float[][][][] wl4 = loadWeights(l4w_name, 16, 32, 12, 24);// 24, 48);
+        //String l4w_name = "L4_rfx=48_rfy=24_incx=48_incy=24_somx=32_somy=16_blockx=48_blocky=24_spanx=0_spany=0.dat";
+        //float[][][][] wl4 = loadWeights(l4w_name, 16, 32, 12, 24);// 24, 48);
         spec_l4.input_size_x = layer_3.outputUpSize()[1];
         spec_l4.input_size_y = layer_3.outputUpSize()[0];
         spec_l4.som_size_x = 32;
         spec_l4.som_size_y = 16;
-        spec_l4.rf_size_x = 24;//48; // 2 * spec_l3.som_size_x;
-        spec_l4.rf_size_y = 12;//24; // 2 * spec_l3.som_size_y;
+        spec_l4.rf_size_x = 48; // 2 * spec_l3.som_size_x;
+        spec_l4.rf_size_y = 24; // 2 * spec_l3.som_size_y;
         spec_l4.rf_inc_x = 48; // spec_l3.som_size_x;
         spec_l4.rf_inc_y = 24; // spec_l3.som_size_y;
-        spec_l4.span_size_x = 0;//264; // 1 * spec_l3.som_size_x;
-        spec_l4.span_size_y = 0;//132; // 1 * spec_l3.som_size_y;
+        spec_l4.span_size_x = 264; // 1 * spec_l3.som_size_x;
+        spec_l4.span_size_y = 132; // 1 * spec_l3.som_size_y;
         spec_l4.block_size_x = 48;// spec_l3.som_size_x;
         spec_l4.block_size_y = 24;// spec_l3.som_size_y;
         spec_l4.rnd_mean = 0.001;
         spec_l4.alpha = 0.0001;
 
         layer_4 = new MultiResLayer(spec_l4, "Layer 4");
-        layer_4.weights(wl4);
+        //layer_4.weights(wl4);
         println("layer4 mapsize: " + spec_l4.map_size_y + ", " + spec_l4.map_size_x);
         println("layer4 logical size: " + spec_l4.map_size_y / spec_l4.som_size_y + ", " + spec_l4.map_size_x / spec_l4.som_size_x);
+
+        // try loading file
+        if(createInput(fname)!= null)
+          this.load(fname);
+        else {
+          println(fname + " was not found.");
+        }
 
     }
 
     void init(float[][] inp) {
         //printSize(inp, "inp");
-        this.data = inp;
+        this.data = scaleMatrix(inp, 0.25, 0.25);;
         data_y = (this.data.length / 2) - (spec_l1.input_size_y / 2);
         data_x = (this.data[0].length / 2) - (spec_l1.input_size_x / 2);
     }
 
     void setInput(float[] inp) {
         
+    }
+
+    void save(String name) {
+        
+        // println(l1w.toString());
+        JSONArray stack = new JSONArray();
+        stack.setJSONObject(0, layer_1.toJSON());
+        stack.setJSONObject(1, layer_2.toJSON());
+        stack.setJSONObject(2, layer_3.toJSON());
+        stack.setJSONObject(3, layer_4.toJSON());
+        saveJSONArray(stack, "data/" + name);
+        
+
+    }
+
+    void load(String name) {
+
+            // load it
+        JSONArray loadvalues = loadJSONArray(name);
+        
+        // println(loadvalues.toString());
+        MultiResLayer[] layers = {layer_1, layer_2, layer_3, layer_4};
+        for (int i = 0; i < loadvalues.size(); i++) {
+            JSONObject l = loadvalues.getJSONObject(i);
+            layers[i].fromJSON(l);
+        }
     }
 
     void tick() {
@@ -163,13 +201,15 @@ class Test4LayersLoad {
 
         layer_3.inputUp(layer_2.outputUp());
         //layer_3.inputDown(train_3 ? layer_3.outputUp() : layer_4.outputDown());
-        layer_3.inputDown(layer_3.outputUp());
+        layer_3.inputDown(layer_4.outputDown());
         layer_3.cycle();
 
         layer_4.inputUp(layer_3.outputUp());
         layer_4.inputDown(layer_4.outputUp());
         layer_4.cycle();
         //printMatrix("w", layer.weightViz());
+
+        if(savectr++ % saveinterval == 0) this.save(this.fname);
     }
 
     void draw() {
@@ -190,19 +230,19 @@ class Test4LayersLoad {
         drawImage(subm, "Input", 2.5);
         
         translate(0, 250);
-        float[] scl1 = {0.75, 4, 3}; // output weights topdown
+        float[] scl1 = {0.05, 0.2, 1.5}; // output weights topdown
         drawLayer(layer_1, scl1);
         
         translate(450, 0);
-        float[] scl2 = {1,0.25,1};
+        float[] scl2 = {0.1,0.25,0.2};
         drawLayer(layer_2, scl2);
 
         translate(450, 0);
-        float[] scl3 = {1,0.2,1};
+        float[] scl3 = {0.1,0.2,0.2};
         drawLayer(layer_3, scl3);
  
         translate(450, 0);
-        float[] scl4 = {0.35,0.75,0.55};
+        float[] scl4 = {0.1,0.05,0.2};
         drawLayer(layer_4, scl4);
         
         popMatrix();
