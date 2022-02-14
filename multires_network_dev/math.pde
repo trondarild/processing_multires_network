@@ -540,6 +540,50 @@ float[][] deprojectMatrix(float[][] m, float near, float far, float fov){
   return output_matrix;
 }
 
+float[][] scaleMatrix(float[][] m, float sx, float sy){
+  int output_matrix_size_y = int(m.length*sy);
+  int output_matrix_size_x = int(m[0].length*sx);
+   int input_matrix_size_y = m.length;
+  int input_matrix_size_x = m[0].length; 
+  float[] element = new float[4];
+  float[] trans_mat = h_translation_matrix(
+                           0, //-input_matrix_size_x/1.0,
+                           0, //-input_matrix_size_y/1.0,
+                            0);
+    float[] detrans_mat = h_translation_matrix(                          
+                           0, //input_matrix_size_x/1.0,
+                           0, //input_matrix_size_y/1.0,
+                           0);
+   // get x and y Scales
+    int src_i = 0;
+    int src_j = 0;
+    float [] scale_mat = h_scaling_matrix(1.f/sx, 1.f/sy, 0);
+    float [][] output_matrix = zeros(output_matrix_size_y, output_matrix_size_x);
+    for (int i=0; i<output_matrix_size_y; i++) {
+        for (int j=0; j<output_matrix_size_x; j++) {
+            element[0] = (float)j;
+            element[1] = (float)i;
+            element[3] = 1.f;
+            float[] tmp1 = h_multiply_v(trans_mat, element);
+            float[] tmp2 = h_multiply_v(scale_mat, tmp1);
+            tmp1 = h_multiply_v(detrans_mat, tmp2);
+            src_i = Math.round(tmp1[1]);
+            src_j = Math.round(tmp1[0]);
+            if(src_i>=0 && src_i<input_matrix_size_y &&
+               src_j>=0 && src_j<input_matrix_size_x){
+                output_matrix[i][j] = m[src_i][src_j];
+                // printf("input assigned: %f", input_matrix[src_i][src_j]);
+            }
+            //if(debugmode)
+            //{
+            //    printf("dst_i=%i, dst_j=%i, src_i=%i, src_j=%i - ",i, j, src_i, src_j);
+            //    printf("output at %i, %i = %f\n", i, j, output_matrix[i][j]);
+            //}
+        }
+    }
+    return output_matrix;
+}
+
 float[][] scaleMatrix(float[][] m, float sx, float sy, int out_x, int out_y){
   int output_matrix_size_y = out_y;
   int output_matrix_size_x = out_x;
