@@ -12,6 +12,7 @@ float[][][][] zeros(int r, int c, int rr, int cc) {
   return new float[r][c][rr][cc];
 
 }
+
 float[][] id(int sz){
   float [][] ret = zeros(sz, sz);
   for (int j=0; j < ret.length; j++)
@@ -38,6 +39,14 @@ float[][] ones(int rows, int cols, float val){
     for (int i=0; i<ret[0].length; i++)
       ret[j][i] = val;
   return ret;  
+}
+
+float[] randomArray(int sz, float max) {
+  float[] retval = zeros(sz);
+  for (int i = 0; i < sz; ++i) {
+      retval [i] = random(0, max);
+  }  
+  return retval;
 }
 
 float[][] randomMatrix(int r, int c, float max){
@@ -242,6 +251,15 @@ int argmax(float[] a){
   
   for(int i=0; i<a.length; i++)
     if(a[retval] < a[i])
+      retval = i;
+  return retval;
+}
+
+int argmin(float[] a){
+  int retval = 0;
+  
+  for(int i=0; i<a.length; i++)
+    if(a[retval] > a[i])
       retval = i;
   return retval;
 }
@@ -765,6 +783,27 @@ float sumArray(ArrayList<Float> a){
 
 }
 
+float[] strideSum(int stride, float[] a) {
+  float[] retval = zeros(a.length / stride);
+  int divs = a.length / stride;
+  assert(divs != 0 && a.length % stride == 0) : 
+    "a.length / stride = " + (a.length / stride) 
+    + "; a.length % stride = " + a.length % stride;
+  int retstart = 0;
+  float[] tmp = zeros(stride); 
+  for (int i = 0; i < divs; ++i) {
+    
+      // System.out.printf( "i: %d, t: %d, i*divs: %d, i*stride: %d, i*stride + stride*t: %d, retstart: %d %n", 
+      //   i, t, i*divs, i*stride, i*stride+stride*t, retstart);
+      // printArray("ret", retval);
+      System.arraycopy(a, i * stride, tmp, 0, stride);
+      retval[retstart] = sumArray(tmp);
+      retstart += 1;
+    
+  }
+  return retval;
+}
+
 float mean(float[] a){
   return sumArray(a)/a.length;
 }
@@ -835,7 +874,7 @@ float[][] normalize(float[][] a) {
   return multiply(1.0/norm1(a), a);
 }
 
-float cosine_diff(float[] a, float[] b) {
+float cosine_sim(float[] a, float[] b) {
   /**
   # Dot and norm
   dot = sum(a*b for a, b in zip(vec_a, vec_b))
